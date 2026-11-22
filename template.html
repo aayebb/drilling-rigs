@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Offshore Drilling Rig Explorer – VR</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#0b1520;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e8eef4}
+#app{position:fixed;inset:0}
+.panel{position:fixed;background:rgba(10,20,32,.86);border:1px solid rgba(255,255,255,.12);border-radius:12px;backdrop-filter:blur(6px);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+#nav{top:12px;left:12px;padding:10px 12px;width:270px;max-height:calc(100% - 24px);overflow:auto}
+#nav h1{font-size:16px;margin:0 0 2px;color:#ffc83c;letter-spacing:.3px}
+#nav .sub{font-size:11.5px;color:#9fb3c4;margin-bottom:8px}
+.rigblock{margin:8px 0;padding:8px;border-radius:9px;background:rgba(255,255,255,.04)}
+.rigbtn{width:100%;text-align:left;font-weight:600}
+.rigblock .views{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+button{background:#1d3a52;color:#e8eef4;border:1px solid rgba(255,255,255,.14);border-radius:7px;padding:6px 9px;font-size:12.5px;cursor:pointer}
+button:hover{background:#28506f}button.on{background:#c58a12;border-color:#ffc83c;color:#fff}
+.views button{font-size:11.5px;padding:4px 7px;background:#16283a}.views button.sub{background:#3b2a17;border-color:#7a5a2e}
+.tag{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:10px;margin-left:4px;background:#2d6a4f;font-weight:500}
+.tag.d{background:#1f5f8b}.tag.g{background:#7a5c1f}.tag.u{background:#5a3d7a}
+.tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+#ops{left:12px;bottom:12px;padding:10px 12px;width:min(560px,calc(100% - 24px))}
+#nav{max-height:calc(100% - 250px)}
+.opsHead{font-size:13.5px;margin-bottom:6px}.dim{color:#9fb3c4}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.seg{display:flex;gap:0;margin:4px 0}.seg button{border-radius:0}.seg button:first-child{border-radius:7px 0 0 7px}.seg button:last-child{border-radius:0 7px 7px 0}
+.sl{display:flex;align-items:center;gap:8px;font-size:12px;color:#9fb3c4}.sl input{flex:1;accent-color:#ffc83c}
+.readout{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#9fb3c4;margin-top:6px}.readout b{color:#fff;font-variant-numeric:tabular-nums}
+.status{margin-top:6px;font-size:12.5px;color:#ffe08a;min-height:18px}.status.warn{color:#ff8a80}
+#info{top:12px;right:12px;width:min(370px,calc(100% - 24px));max-height:calc(100% - 90px);overflow:auto;padding:14px 16px}
+#info.hidden,.hidden{display:none!important}
+#info h2{margin:2px 0 8px;font-size:19px;color:#fff}#info .cat{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#ffc83c}
+#info h4{margin:10px 0 3px;font-size:12px;color:#9fd3ff;text-transform:uppercase;letter-spacing:.5px}
+#info p,#info li{font-size:13.5px;line-height:1.5;color:#dfe9f2;margin:0}#info ul{padding-left:18px;margin:2px 0}#info li{margin:3px 0}
+#info .x{position:absolute;right:8px;top:8px;padding:2px 8px;font-size:16px}
+#pos{position:fixed;right:12px;bottom:70px;font-size:12px;padding:6px 10px}#pos b{color:#fff}
+#vrbtn{left:auto!important;right:12px!important;bottom:12px!important;width:auto!important;padding:10px 16px!important;background:#c58a12!important;border:1px solid #ffc83c!important;font-weight:700!important;opacity:1!important}
+#hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);font-size:12px;padding:6px 12px;color:#cfe3f2;pointer-events:none}
+#help{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:20}
+#help .card{max-width:560px;padding:20px 24px;font-size:13.5px;line-height:1.55}#help h3{margin:0 0 8px;color:#ffc83c}#help kbd{background:#24384b;padding:1px 6px;border-radius:4px;font-size:12px}
+body.invr .panel,body.invr #hint{display:none}
+@media (max-width:760px){#info{top:auto;bottom:250px;max-height:40%}#nav{width:220px}#hint{display:none}}
+</style></head><body>
+<div id="app"></div>
+<div id="nav" class="panel">
+  <h1>Offshore Drilling Rig Explorer</h1>
+  <div class="sub">Shallow → deep water · click any part to learn it</div>
+  <div class="tools"><button id="btnHome">⌂ Start</button><button id="btnAll">◎ Whole field</button><button id="btnLabels" class="on">Labels</button><button id="btnShadows" class="on">Shadows</button><button id="btnSub">Subsurface</button><button id="btnHelp">? Help</button></div>
+  <div class="rigblock"><button class="rigbtn" data-rig="jackup" data-view="jackup:overview">Jack-up <span class="tag">shallow · 90 m</span></button>
+    <div class="views"><button data-view="jackup:floor">Drill floor</button><button data-view="jackup:bop">Surface BOP</button><button data-view="jackup:mud">Mud system</button><button data-view="jackup:platform">Wellhead platform</button><button data-view="jackup:seabed">Legs & seabed</button><button class="sub" data-view="jackup:well">Wellbore & geology</button><button class="sub" data-view="jackup:shoes">Casing cutaway</button><button class="sub" data-view="jackup:reservoir">Reservoir</button><button class="sub" data-view="jackup:bit">Follow the bit</button></div></div>
+  <div class="rigblock"><button class="rigbtn" data-rig="semi" data-view="semi:overview">Semi-submersible <span class="tag d">deep · 1,500 m</span></button>
+    <div class="views"><button data-view="semi:floor">Drill floor</button><button data-view="semi:mud">Mud system</button><button data-view="semi:hull">Pontoons & columns</button><button data-view="semi:moonpool">Moonpool</button><button data-view="semi:bop">Subsea BOP</button><button class="sub" data-view="semi:well">Wellbore & geology</button><button class="sub" data-view="semi:shoes">Casing cutaway</button><button class="sub" data-view="semi:reservoir">Reservoir</button><button class="sub" data-view="semi:bit">Follow the bit</button></div></div>
+  <div class="rigblock"><button class="rigbtn" data-rig="ship" data-view="ship:overview">Drillship <span class="tag u">ultra-deep · 2,200 m</span></button>
+    <div class="views"><button data-view="ship:dual">Dual derrick</button><button data-view="ship:floor">Main drill floor</button><button data-view="ship:mud">Mud & well control</button><button data-view="ship:hull">Hull & thrusters</button><button data-view="ship:moonpool">Moonpool</button><button data-view="ship:moonpoolbelow">Moonpool from below</button><button data-view="ship:bop">Subsea BOP & ROV</button><button class="sub" data-view="ship:well">Wellbore & geology</button><button class="sub" data-view="ship:shoes">Casing cutaway</button><button class="sub" data-view="ship:reservoir">Reservoir</button><button class="sub" data-view="ship:bit">Follow the bit</button></div></div>
+  <div class="rigblock"><button class="rigbtn" data-rig="gallery" data-view="gallery:overview">Tool gallery <span class="tag g">25+ tools</span></button>
+    <div class="views"><button data-view="gallery:bits">Drill bits</button><button data-view="gallery:motor">Mud motor cutaway</button><button data-view="gallery:bha">BHA tools</button><button data-view="gallery:tools">Handling tools</button><button data-view="gallery:tools2">Well-control & cementing</button><button data-view="gallery:wellhead">Wellhead & casing</button></div></div>
+</div>
+<div id="ops" class="panel"></div>
+<div id="info" class="panel hidden"></div>
+<div id="pos" class="panel"></div>
+<div id="hint" class="panel">Drag to orbit · right-drag to pan · scroll to zoom · <b>WASD/QE</b> to fly (Shift = fast) · click parts</div>
+<div id="help" class="hidden"><div class="card panel" style="position:relative">
+<h3>How to use</h3>
+<p><b>Normal view:</b> drag to orbit, right-drag (or two fingers) to pan, scroll to zoom. Fly freely with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, <kbd>Q</kbd>/<kbd>E</kbd> down/up, hold <kbd>Shift</kbd> to go fast. Use the left panel to fly between rigs and views. Click any part for an explanation.</p>
+<p><b>Tool gallery:</b> a display deck next to the jack-up with bits, BHA tools, handling tools, BOP parts, cementing and wellhead equipment (enlarged).</p>
+<p><b>Subsurface:</b> press <i>Subsurface</i> or a brown <i>Wellbore</i> button to see the geology below each rig: casing strings cut away to show cement and the open hole, directional and horizontal well paths, reservoir layers with gas / oil / water contacts. The drill string and bit in the hole follow the live bit depth when you drill or trip. Click any rock layer to learn about it.</p>
+<p><b>Operations:</b> Drill ahead, trip out / trip in, or drag the top-drive slider. On the jack-up, try <i>Jack down / up</i>. On the drillship, switch between the main and auxiliary well centers.</p>
+<p><b>VR mode:</b> press <b>Enter VR</b> on a WebXR headset (e.g. Meta Quest browser). Left controller holds the menu; point with the right controller and pull the trigger to press buttons or select parts. Right stick moves, left stick up/down & turn, hold grip to go faster.</p>
+<p class="dim">Water depths are true scale; horizontal distances between rigs are compressed. Drill pipe is drawn thicker than reality so you can see it. Values are typical, for teaching.</p>
+<p class="dim">Click anywhere to close.</p></div></div>
+<script>/*BUNDLE*/</script>
+</body></html>
